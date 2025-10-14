@@ -5,7 +5,6 @@ pipeline {
         DOCKER_IMAGE = 'juanjothin/vitalapp'
         DOCKER_TAG = 'latest'
         REGISTRY_CREDENTIALS = 'Token-docker' // ID de las credenciales en Jenkins
-        SONAR_TOKEN = credentials('sonarqube-local-token') // ID en Jenkins Credentials
     }
 
     stages {
@@ -28,7 +27,13 @@ pipeline {
         stage('Análisis SonarQube') {
             steps {
                 withSonarQubeEnv('sonarqube-local') {
-                    sh './gradlew sonarqube -Dsonar.login=$SONAR_TOKEN'
+                    script {
+                        echo "=== DEBUG: Variables de entorno Sonar ==="
+                        sh 'echo "SONAR_HOST_URL = $SONAR_HOST_URL"'
+                        sh 'echo "SONAR_AUTH_TOKEN = ${SONAR_AUTH_TOKEN:+***}"'
+                        sh 'echo "Ejecutando análisis con Gradle..."'
+                        sh './gradlew sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN'
+                    }
                 }
             }
         }
@@ -65,13 +70,13 @@ pipeline {
         stage('Push a DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "$REGISTRY_CREDENTIALS", 
-                    usernameVariable: 'DOCKER_USER', 
+                    credentialsId: "$REGISTRY_CREDENTIALS",
+                    usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                        sh 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
-                    }
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
+                }
             }
         }
 
