@@ -14,40 +14,17 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Configuración CORS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Desactivar CSRF para API REST
                 .csrf(csrf -> csrf.disable())
-
-                // Permitir todos los endpoints (para entorno de pruebas)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/**", "/actuator/**").permitAll() // <--- aquí tus endpoints públicos
+                        .anyRequest().authenticated()
                 )
-
-                // Deshabilitar login form y autenticación básica
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-
-                // 🔄 Nueva forma de desactivar frame options (reemplazo moderno)
-                .headers(headers -> headers.disable());
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
