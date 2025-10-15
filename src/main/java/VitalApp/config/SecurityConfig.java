@@ -16,14 +16,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Configuración CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Desactivar CSRF para API REST
                 .csrf(csrf -> csrf.disable())
+
+                // Permitir todos los endpoints (para entorno de pruebas)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // 🔓 Permitir TODO (para entorno de pruebas)
+                        .anyRequest().permitAll()
                 )
-                .headers(headers -> headers.frameOptions().disable()) // por si usas H2 o Swagger
-                .formLogin(login -> login.disable()) // 🔒 Deshabilita login form
-                .httpBasic(basic -> basic.disable()); // 🔒 Deshabilita autenticación básica
+
+                // Deshabilitar login form y autenticación básica
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+
+                // 🔄 Nueva forma de desactivar frame options (reemplazo moderno)
+                .headers(headers -> headers.disable());
 
         return http.build();
     }
