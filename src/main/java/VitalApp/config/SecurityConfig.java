@@ -17,24 +17,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Configuración de CORS usando corsConfigurationSource()
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Deshabilita CSRF (no necesario para APIs REST con JWT)
                 .csrf(csrf -> csrf.disable())
-
-                // Configuración de autorización de endpoints
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**","/actuator/**",
-                                "/api/pacientes/**",
-                                "/api/medicos/**",
-                                "/api/citaMedica/**").permitAll() // Endpoints públicos
-                        .anyRequest().authenticated() // Todo lo demás requiere autenticación
+                        .anyRequest().permitAll()
                 );
-
 
         return http.build();
     }
+
 
 
     /**
