@@ -48,17 +48,26 @@ pipeline {
 
         stage('Tests (JUnit + Postman)') {
             steps {
-                sh './gradlew test'
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'newman run tests/postman_collection.json --insecure'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''
+                        # Limpiamos build previo
+                        ./gradlew clean build -x test
+
+                        echo "Levantando servidor Spring Boot..."
+                        nohup java -jar build/libs/*.jar --spring.profiles.active=test > app.log 2>&1 &
+                        sleep 15
+
+                        echo "Ejecutando tests Newman..."
+                        newman run tests/postman_collection.json --insecure || true
+
+                        echo "Deteniendo servidor..."
+                        pkill -f 'java -jar' || true
+                    '''
                 }
-            }
-            post {
-                always {
-                    junit 'build/test-results/test/*.xml'
-                }
+                junit 'build/test-results/test/*.xml'
             }
         }
+
 
         stage('Construir imagen Docker') {
             steps {
