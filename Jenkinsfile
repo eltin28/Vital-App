@@ -11,12 +11,15 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'Staging',
-                    url: 'https://github.com/eltin28/VitalApp',
-                    changelog: false,
-                    poll: false
-                sh 'git fetch --all'
-                sh 'git reset --hard origin/Staging'
+                // Limpiar workspace antes de clonar
+                wipeWorkspace()
+
+                // Clonar solo un repositorio
+                checkout([$class: 'GitSCM',
+                          branches: [[name: 'Staging']],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          userRemoteConfigs: [[url: 'https://github.com/eltin28/Vital-App.git']]])
             }
         }
 
