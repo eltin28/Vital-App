@@ -25,12 +25,16 @@ pipeline {
 
         stage('Compilar (Gradle)') {
             steps {
-                sh 'chmod +x ./gradlew'
-                sh "rm -rf ${env.HOME}/.gradle"
-                sh './gradlew clean'
-                sh './gradlew clean build -x test'
+                sh '''
+                    echo "Eliminando Gradle corrupto..."
+                    rm -rf /root/.gradle/wrapper/dists
+                    chmod +x ./gradlew
+                    ./gradlew --version
+                    ./gradlew clean
+                '''
             }
         }
+
 
         stage('Análisis SonarQube') {
             steps {
