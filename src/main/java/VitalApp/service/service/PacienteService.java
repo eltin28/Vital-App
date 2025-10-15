@@ -12,4 +12,6 @@ public interface PacienteService {
     String eliminarPaciente(String id) throws Exception;
     ItemPacienteDTO obtenerInformacionPaciente(String id) throws Exception;
     List<ItemPacienteDTO> listarPacientes();
+    List<ItemPacienteDTO> buscarPacientesPorNombre(String nombre);
+    long contarPacientes();
 }

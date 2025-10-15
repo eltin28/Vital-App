@@ -12,5 +12,4 @@ public record ItemCitaMedicaDTO(
         HorarioMedico horario,
         EstadoCita estado,
         ResultadoMedico resultado
-) {
-}
+) {}
