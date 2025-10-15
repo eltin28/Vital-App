@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Limpiar workspace antes de clonar
-                wipeWorkspace()
+                deleteDir()
 
                 // Clonar solo un repositorio
                 checkout([$class: 'GitSCM',
